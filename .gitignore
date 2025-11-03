@@ -25,6 +25,8 @@ bin/
 
 ### VS Code ###
 .vscode/
+src/BleachAssets
+src/assets
 
 ### Mac OS ###
 .DS_Store

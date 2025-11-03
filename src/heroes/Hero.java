@@ -36,7 +36,7 @@ public class Hero {
 
     @Override
     public String toString(){
-        return name + " [" + type + "] | State: " + state.getName() + " | Reiatsu: " + reiatsu;
+        return name + " [" + type + "] | State: " +   " | Reiatsu: " + reiatsu;
     }
 
 }
