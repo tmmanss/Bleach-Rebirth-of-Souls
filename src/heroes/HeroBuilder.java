@@ -1,34 +1,42 @@
 package heroes;
 
-import strategy.AttackStrategy;
+import core.FrameSplitter;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 public class HeroBuilder {
-    private String name;
-    private HeroType type;
-    private int reiatsu;
-    private AttackStrategy strategy;
+    private String basePath;
+    private HeroMovement movement = new HeroMovement();
 
-    public HeroBuilder setName(String name){
-        this.name = name;
+    public HeroBuilder setBasePath(String basePath) {
+        this.basePath = basePath;
         return this;
     }
 
-    public HeroBuilder setType(HeroType type){
-        this.type = type;
+    public HeroBuilder setMovement(HeroMovement movement) {
+        this.movement = movement;
         return this;
     }
 
-    public HeroBuilder setReiatsu(int reiatsu){
-        this.reiatsu = reiatsu;
-        return this;
-    }
+    public BaseHero build() {
+        try {
+            BufferedImage idle = ImageIO.read(new File(basePath + "/idle.png"));
+            BufferedImage run = ImageIO.read(new File(basePath + "/run.png"));
+            BufferedImage attack = ImageIO.read(new File(basePath + "/attack1.png"));
 
-    public HeroBuilder setStrategy(AttackStrategy strategy){
-        this.strategy = strategy;
-        return this;
-    }
+            BufferedImage[] idleFrames = FrameSplitter.splitByTransparentGaps(idle, 10);
+            BufferedImage[] runFrames = FrameSplitter.splitByTransparentGaps(run, 10);
+            BufferedImage[] attackFrames = FrameSplitter.splitByTransparentGaps(attack, 10);
 
-    public Hero build(){
-        return new Hero(name, type, reiatsu, strategy);
+            HeroAnimation animation = new HeroAnimation(idleFrames, null, runFrames, attackFrames);
+            return new BaseHero(animation, movement);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
