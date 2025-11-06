@@ -2,6 +2,7 @@ import core.Background;
 import core.Controls;
 import core.KeyAdapterImpl;
 import heroes.*;
+import observer.HPBar;
 import strategy.MeleeAttack;
 
 import javax.swing.*;
@@ -14,6 +15,7 @@ public class GamePanel extends JPanel implements Runnable {
     private Background background;
     private Thread gameThread;
     private boolean running = true;
+    private HPBar hpBar1, hpBar2;
 
     public GamePanel() {
         setFocusable(true);
@@ -48,6 +50,12 @@ public class GamePanel extends JPanel implements Runnable {
         hero2.getMovement().groundBottom = groundBottomY;
         hero2.getMovement().groundLeft = 0;
         hero2.getMovement().groundRight = 1280;
+
+        hpBar1 = new HPBar(25, 50, 300, 20);
+        hpBar2 = new HPBar(950, 50, 300, 20);
+
+        hero1.addObserver(hpBar1);
+        hero2.addObserver(hpBar2);
     }
 
     private void initControls() {
@@ -81,22 +89,9 @@ public class GamePanel extends JPanel implements Runnable {
         hero1.draw(g);
         hero2.draw(g);
 
-        drawHPBars(g);
+        hpBar1.draw(g, hero1);
+        hpBar2.draw(g, hero2);
     }
 
-    private void drawHPBars(Graphics g) {
-        int hpWidth1 = (int) ((hero1.getReiatsu() / 1000.0) * 300);
-        g.setColor(Color.RED);
-        g.fillRect(25, 50, hpWidth1, 20);
-        g.setColor(Color.WHITE);
-        g.drawRect(25, 50, 300, 20);
-        g.drawString(hero1.getName() + " HP: " + hero1.getReiatsu(), 25, 45);
 
-        int hpWidth2 = (int) ((hero2.getReiatsu() / 1000.0) * 300);
-        g.setColor(Color.RED);
-        g.fillRect(950, 50, hpWidth2, 20);
-        g.setColor(Color.WHITE);
-        g.drawRect(950, 50, 300, 20);
-        g.drawString(hero2.getName() + " HP: " + hero2.getReiatsu(), 950, 45);
-    }
 }

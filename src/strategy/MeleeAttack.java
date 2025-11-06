@@ -8,7 +8,7 @@ public class MeleeAttack implements AttackStrategy {
         double distance = attacker.distanceTo(target);
         attacker.reduceReiatsu(20);
         if (distance <= attacker.getAttackRange()) {
-            target.takeReiatsu(100);
+            target.takeDamage(100);
             System.out.println(attacker.getName() + " hit " + target.getName() + " with melee (" + (int) distance + ")");
         } else {
             System.out.println(attacker.getName() + " missed! Distance " + (int) distance);

@@ -1,13 +1,18 @@
 package heroes;
 
+import observer.Observer;
+import observer.Subject;
+import java.util.ArrayList;
+import java.util.List;
 import strategy.AttackStrategy;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
-public class BaseHero {
+public class BaseHero implements Subject {
     private String name;
     private double attackRange;
     private int reiatsu;
@@ -16,7 +21,7 @@ public class BaseHero {
 
     protected HeroAnimation animation;
     protected HeroMovement movement;
-    protected AttackStrategy attackStrategy;
+    public AttackStrategy attackStrategy;
 
     protected boolean movingRight = true;
     public boolean attacking = false;
@@ -36,10 +41,30 @@ public class BaseHero {
     public boolean up, down, left, right;
 
     private BaseHero currentTarget;
+    private List<Observer> observers = new ArrayList<>();
+
 
     public BaseHero(HeroAnimation animation, HeroMovement movement) {
         this.animation = animation;
         this.movement = movement;
+    }
+
+    @Override
+    public void addObserver(Observer observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void removeObserver(Observer observer) {
+        observers.remove(observer);
+    }
+
+
+    @Override
+    public void notifyObservers(String event, int value) {
+        for (Observer obs : observers) {
+            obs.update(event, this, value);
+        }
     }
 
     public void setName(String name) {
@@ -97,6 +122,7 @@ public class BaseHero {
             if (distance <= this.getAttackRange()) {
                 attackStrategy.attack(this, currentTarget);
                 damageDealt = true;
+                notifyObservers("ATTACK", 0);
             } else {
                 System.out.println(name + " missed the attack! Distance: " + (int) distance);
             }
@@ -122,12 +148,13 @@ public class BaseHero {
     }
 
 
-    public void takeReiatsu(int amount) {
+    public void takeDamage(int amount) {
         reiatsu -= amount;
         if (reiatsu < 0) reiatsu = 0;
         wasHit = true;
         lastHitTime = System.currentTimeMillis();
         System.out.println(name + " took " + amount + " damage. HP: " + reiatsu);
+        notifyObservers("HIT", amount);
     }
 
     public void update() {
@@ -182,21 +209,18 @@ public class BaseHero {
     public void draw(Graphics g) {
         BufferedImage frame;
 
-        // выбираем нужный кадр
         switch (state) {
             case RUN -> frame = animation.runFrames[currentFrame % animation.runFrames.length];
             case ATTACK -> frame = animation.attackFrames[attackFrame % animation.attackFrames.length];
             default -> frame = animation.idleFrames[currentFrame % animation.idleFrames.length];
         }
 
-        // отражение по горизонтали, если смотрит влево
         if (!movingRight) {
             AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
             tx.translate(-frame.getWidth(), 0);
             frame = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR).filter(frame, null);
         }
 
-        // эффект удара (вспышка красным)
         if (wasHit && System.currentTimeMillis() - lastHitTime < 150) {
             g.setColor(new Color(255, 0, 0, 120)); // прозрачный красный
             g.fillRect(movement.x, movement.y, frame.getWidth() * 2, frame.getHeight() * 2); // тоже увеличиваем!
@@ -204,14 +228,12 @@ public class BaseHero {
             wasHit = false;
         }
 
-        // масштаб (во сколько раз увеличить)
         double scale = 2.0;
 
-        // рисуем увеличенного героя
         g.drawImage(
                 frame,
-                movement.x, movement.y,                                         // позиция
-                (int)(frame.getWidth() * scale), (int)(frame.getHeight() * scale), // масштабированные размеры
+                movement.x, movement.y,
+                (int)(frame.getWidth() * scale), (int)(frame.getHeight() * scale),
                 null
         );
     }
