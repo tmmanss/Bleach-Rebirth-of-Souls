@@ -1,14 +1,17 @@
-//package strategy;
-//
-//public class MeleeAttack implements AttackStrategy{
-//    @Override
-//    public void attack(Hero attacker, Hero target){
-//        int damage = 15;
-//        System.out.println(attacker.getName() + " атакует " + target.getName() +"(" + damage + " урон )");
-//    }
-//
-//    @Override
-//    public String getName(){
-//      return "Ближняя атака";
-//    };
-//}
+package strategy;
+
+import heroes.BaseHero;
+
+public class MeleeAttack implements AttackStrategy {
+    @Override
+    public void attack(BaseHero attacker, BaseHero target) {
+        double distance = attacker.distanceTo(target);
+        attacker.reduceReiatsu(20);
+        if (distance <= attacker.getAttackRange()) {
+            target.takeReiatsu(100);
+            System.out.println(attacker.getName() + " hit " + target.getName() + " with melee (" + (int) distance + ")");
+        } else {
+            System.out.println(attacker.getName() + " missed! Distance " + (int) distance);
+        }
+    }
+}

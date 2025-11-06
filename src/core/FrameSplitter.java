@@ -38,7 +38,6 @@ public class FrameSplitter {
             }
         }
 
-        // последний фрейм, если не закончился прозрачностью
         if (startX != -1) {
             int frameWidth = width - startX;
             BufferedImage rawFrame = sheet.getSubimage(startX, 0, frameWidth, height);
@@ -48,16 +47,12 @@ public class FrameSplitter {
         return frames.toArray(new BufferedImage[0]);
     }
 
-    /**
-     * Обрезает пустые прозрачные строки сверху и снизу.
-     */
     private static BufferedImage trimVertical(BufferedImage frame, int minAlpha) {
         int top = 0;
         int bottom = frame.getHeight() - 1;
         int width = frame.getWidth();
         int height = frame.getHeight();
 
-        // 🔹 Найти верхнюю непустую строку
         outerTop:
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -70,7 +65,6 @@ public class FrameSplitter {
             }
         }
 
-        // 🔹 Найти нижнюю непустую строку
         outerBottom:
         for (int y = height - 1; y >= 0; y--) {
             for (int x = 0; x < width; x++) {
@@ -84,7 +78,7 @@ public class FrameSplitter {
         }
 
         int newHeight = bottom - top + 1;
-        if (newHeight <= 0) return frame; // пустой — возвращаем как есть
+        if (newHeight <= 0) return frame;
 
         return frame.getSubimage(0, top, width, newHeight);
     }

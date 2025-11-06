@@ -1,6 +1,7 @@
-//package strategy;
-//
-//public interface AttackStrategy {
-//    void attack(Hero attacker, Hero target);
-//    String getName();
-//}
+package strategy;
+
+import heroes.BaseHero;
+
+public interface AttackStrategy {
+    void attack(BaseHero attacker, BaseHero target);
+}
