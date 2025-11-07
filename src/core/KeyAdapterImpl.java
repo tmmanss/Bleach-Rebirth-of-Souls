@@ -21,13 +21,15 @@ public class KeyAdapterImpl extends KeyAdapter {
         if (key == Controls.P1_DOWN) hero1.down = true;
         if (key == Controls.P1_LEFT) hero1.left = true;
         if (key == Controls.P1_RIGHT) hero1.right = true;
-        if (key == Controls.P1_ATTACK) hero1.startAttack();
+        if (key == Controls.P1_ATTACK) hero1.performAttack(hero2, hero1.getMeleeStrategy());
+        if (key == Controls.P1_RANGED_ATTACK) hero1.performAttack(hero2, hero1.getRangedStrategy());
 
         if (key == Controls.P2_UP) hero2.up = true;
         if (key == Controls.P2_DOWN) hero2.down = true;
         if (key == Controls.P2_LEFT) hero2.left = true;
         if (key == Controls.P2_RIGHT) hero2.right = true;
-        if (key == Controls.P2_ATTACK) hero2.startAttack();
+        if (key == Controls.P2_ATTACK) hero2.performAttack(hero1, hero2.getMeleeStrategy());
+        if (key == Controls.P2_RANGED_ATTACK) hero2.performAttack(hero1, hero2.getRangedStrategy());
     }
 
     @Override

@@ -1,10 +1,10 @@
     package heroes;
 
     public class HeroMovement {
-        public int x = 100, y = 500;
+        public int x , y;
         public int speed = 20;
-        public int groundTop = 50;
-        public int groundBottom = 400;
+        public int groundTop;
+        public int groundBottom;
         public int groundLeft = 0;
         public int groundRight = 1024;
 

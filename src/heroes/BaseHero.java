@@ -5,6 +5,7 @@ import observer.Subject;
 import java.util.ArrayList;
 import java.util.List;
 import strategy.AttackStrategy;
+import strategy.RangedAttack;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -22,8 +23,12 @@ public class BaseHero implements Subject {
     protected HeroAnimation animation;
     protected HeroMovement movement;
     public AttackStrategy attackStrategy;
+    private AttackStrategy meleeStrategy;
+    private AttackStrategy rangedStrategy;
+    protected boolean projectileFiredThisAttack = false;
 
-    protected boolean movingRight = true;
+
+    public boolean movingRight = true;
     public boolean attacking = false;
     protected boolean damageDealt = false;
 
@@ -67,6 +72,11 @@ public class BaseHero implements Subject {
         }
     }
 
+    public void setMeleeStrategy(AttackStrategy s) { meleeStrategy = s; }
+    public void setRangedStrategy(AttackStrategy s) { rangedStrategy = s; }
+    public AttackStrategy getMeleeStrategy() { return meleeStrategy; }
+    public AttackStrategy getRangedStrategy() { return rangedStrategy; }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -87,6 +97,15 @@ public class BaseHero implements Subject {
     public int getReiatsu() {
         return reiatsu;
     }
+
+    public int getAttackFrame() {
+        return attackFrame;
+    }
+
+    public boolean isMovingRight() {
+        return movingRight;
+    }
+
 
     public HeroAnimation getAnimation() {
         return animation;
@@ -110,11 +129,18 @@ public class BaseHero implements Subject {
         this.attackStrategy = strategy;
     }
 
-    public void performAttack(BaseHero target) {
+    public void performAttack(BaseHero target, AttackStrategy strategy) {
         if (attacking) return;
+
         this.currentTarget = target;
-        startAttack();
+        this.attackStrategy = strategy;
+        attacking = true;
+        state = HeroState.ATTACK;
+        attackFrame = 0;
+        attackStartTime = System.currentTimeMillis();
     }
+
+
 
     private void doAttackHit() {
         if (attackStrategy != null && currentTarget != null && !damageDealt) {
@@ -157,6 +183,14 @@ public class BaseHero implements Subject {
         notifyObservers("HIT", amount);
     }
 
+    private BufferedImage[] getCurrentAttackFrames() {
+        if (attackStrategy != null) {
+            return attackStrategy.getAttackFrames();
+        } else {
+            return meleeStrategy != null ? meleeStrategy.getAttackFrames() : animation.attackFrames;
+        }
+    }
+
     public void update() {
         long now = System.currentTimeMillis();
         if (now - lastFrameTime < frameDelay) return;
@@ -180,38 +214,51 @@ public class BaseHero implements Subject {
                     attackFrame++;
                     attackStartTime = now;
 
-                    if (attackFrame == 3) {
-                        doAttackHit();
+                    if (attackStrategy != null && currentTarget != null) {
+                        if (attackStrategy instanceof RangedAttack ranged) {
+                            // создаём снаряд один раз
+                            if (!projectileFiredThisAttack && attackFrame >= 7) {
+                                ranged.fireProjectile(this, currentTarget);
+                                projectileFiredThisAttack = true;
+                            }
+                        } else {
+                            // обычная атака
+                            if (!damageDealt) {
+                                attackStrategy.attack(this, currentTarget);
+                                damageDealt = true;
+                            }
+                        }
                     }
 
-                    if (attackFrame >= animation.attackFrames.length) {
+                    // завершение атаки
+                    BufferedImage[] framesToUse = getCurrentAttackFrames();
+                    if (attackFrame >= framesToUse.length) {
                         attackFrame = 0;
                         attacking = false;
                         damageDealt = false;
+                        projectileFiredThisAttack = false; // ⚡ сброс флага
                         state = HeroState.IDLE;
                         currentTarget = null;
                     }
                 }
             }
+
+
         }
 
         movingRight = right || (!left && movingRight);
     }
 
-    public void startAttack() {
-        if (attacking) return;
-        attacking = true;
-        state = HeroState.ATTACK;
-        attackFrame = 0;
-        attackStartTime = System.currentTimeMillis();
-    }
 
     public void draw(Graphics g) {
         BufferedImage frame;
 
         switch (state) {
             case RUN -> frame = animation.runFrames[currentFrame % animation.runFrames.length];
-            case ATTACK -> frame = animation.attackFrames[attackFrame % animation.attackFrames.length];
+            case ATTACK -> {
+                BufferedImage[] framesToUse = getCurrentAttackFrames();
+                frame = framesToUse[attackFrame % framesToUse.length];
+            }
             default -> frame = animation.idleFrames[currentFrame % animation.idleFrames.length];
         }
 
@@ -221,21 +268,21 @@ public class BaseHero implements Subject {
             frame = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR).filter(frame, null);
         }
 
+        double scale = 2.0;
+        int scaledWidth = (int)(frame.getWidth() * scale);
+        int scaledHeight = (int)(frame.getHeight() * scale);
+
+        int drawX = movement.x;
+        int drawY = movement.y - scaledHeight; // смещаем вверх на высоту кадра
+
         if (wasHit && System.currentTimeMillis() - lastHitTime < 150) {
-            g.setColor(new Color(255, 0, 0, 120)); // прозрачный красный
-            g.fillRect(movement.x, movement.y, frame.getWidth() * 2, frame.getHeight() * 2); // тоже увеличиваем!
+            g.setColor(new Color(255, 0, 0, 120));
+            g.fillRect(drawX, drawY, scaledWidth, scaledHeight);
         } else {
             wasHit = false;
         }
 
-        double scale = 2.0;
-
-        g.drawImage(
-                frame,
-                movement.x, movement.y,
-                (int)(frame.getWidth() * scale), (int)(frame.getHeight() * scale),
-                null
-        );
+        g.drawImage(frame, drawX, drawY, scaledWidth, scaledHeight, null);
     }
 
 

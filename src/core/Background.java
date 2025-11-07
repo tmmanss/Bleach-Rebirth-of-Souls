@@ -25,7 +25,8 @@ public class Background {
         groundBottomY = groundTopY + ground.getHeight() - bushes.getHeight();
     }
 
-    public void draw(Graphics g, int panelWidth) {
+    /** 🌄 Задний фон: небо, деревья, земля */
+    public void drawBackground(Graphics g, int panelWidth) {
         int x = 0;
         while (x < panelWidth) {
             g.drawImage(sky, x, 0, null);
@@ -44,9 +45,12 @@ public class Background {
             g.drawImage(ground, x, groundTopY, null);
             x += ground.getWidth();
         }
+    }
 
+    /** 🌿 Передний план: кусты */
+    public void drawForeground(Graphics g, int panelWidth) {
         int bushesY = groundTopY + ground.getHeight() - 64;
-        x = 0;
+        int x = 0;
         while (x < panelWidth) {
             g.drawImage(bushes, x, bushesY, null);
             x += bushes.getWidth();

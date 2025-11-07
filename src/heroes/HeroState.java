@@ -2,7 +2,7 @@ package heroes;
 
 public enum HeroState {
     IDLE,
-    START_RUN,
+    STAND,
     RUN,
     ATTACK,
     JUMP,
