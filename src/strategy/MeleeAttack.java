@@ -16,7 +16,7 @@ public class MeleeAttack implements AttackStrategy {
         attacker.reduceReiatsu(20);
         double dist = attacker.distanceTo(target);
         if (dist <= attacker.getAttackRange()) {
-            target.takeDamage(100);
+            target.takeDamage(80);
         }
     }
 

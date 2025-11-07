@@ -1,9 +1,6 @@
 package heroes;
 
-import strategy.MeleeAttack;
 import strategy.Projectile;
-import strategy.RangedAttack;
-import java.util.ArrayList;
 import java.util.List;
 
 

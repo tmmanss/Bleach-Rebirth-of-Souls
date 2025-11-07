@@ -27,7 +27,6 @@ public class Projectile {
         this.sprite = sprite;
         this.movingRight = movingRight;
 
-        // смещаем по y относительно нижнего края спрайта
         if (sprite != null) this.y -= sprite.getHeight() * scale;
     }
     private void hitTarget() {
@@ -50,7 +49,6 @@ public class Projectile {
             return;
         }
 
-        // направление движения учитывает сторону
         x += (movingRight ? 1 : -1) * speed * Math.abs(dx/dist);
         y += dy / dist * speed;
     }

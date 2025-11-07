@@ -17,9 +17,9 @@ public class RangedAttack implements AttackStrategy {
         this.projectileSprite = sprite;
     }
 
-    // strategy/RangedAttack.java
     @Override
     public void attack(BaseHero attacker, BaseHero target) {
+        attacker.reduceReiatsu(15);
         int attackFrame = attacker.getAttackFrame();
         if (attackFrame == attacker.getAnimation().rangedAttackFrames.length - 1) {
             projectileFired = false;
@@ -31,16 +31,13 @@ public class RangedAttack implements AttackStrategy {
                 attacker.getX(),
                 attacker.getY(),
                 target,
-                100,
+                60,
                 projectileSprite,
                 attacker.isMovingRight()
         );
         projectileList.add(p);
         System.out.println(attacker.getName() + " fired a projectile!");
     }
-
-
-
 
     @Override
     public BufferedImage[] getAttackFrames() {

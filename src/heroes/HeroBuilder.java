@@ -70,22 +70,26 @@ public class HeroBuilder {
     public BaseHero build() {
         try {
             BufferedImage idle = ImageIO.read(new File(basePath + "/idle.png"));
+            BufferedImage stand = ImageIO.read(new File(basePath + "/stand.png"));
             BufferedImage run = ImageIO.read(new File(basePath + "/run.png"));
             BufferedImage attack = ImageIO.read(new File(basePath + "/attack1.png"));
             BufferedImage rangedAttack = ImageIO.read(new File(basePath + "/range_attack.png"));
             BufferedImage projectileSprite = ImageIO.read(new File(basePath + "/projectile.png"));
+            BufferedImage dash = ImageIO.read(new File(basePath + "/dash.png"));
+
 
             List<Projectile> projectileList = (sharedProjectiles != null)
                     ? sharedProjectiles
                     : new ArrayList<>();
 
             BufferedImage[] idleFrames = FrameSplitter.splitByTransparentGaps(idle, 10);
+            BufferedImage[] standFrames = MultiRowAutoSplitter.split(stand, 10);
             BufferedImage[] runFrames = FrameSplitter.splitByTransparentGaps(run, 10);
             BufferedImage[] attackFrames = FrameSplitter.splitByTransparentGaps(attack, 10);
             BufferedImage[] rangedAttackFrames = MultiRowAutoSplitter.split(rangedAttack, 10);
 
 
-            HeroAnimation animation = new HeroAnimation(idleFrames, null, runFrames, attackFrames, rangedAttackFrames);
+            HeroAnimation animation = new HeroAnimation(idleFrames, standFrames, runFrames, attackFrames, rangedAttackFrames, dash);
             BaseHero hero = new BaseHero(animation, movement);
 
             hero.setName(name);

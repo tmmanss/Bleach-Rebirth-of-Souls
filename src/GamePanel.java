@@ -1,11 +1,8 @@
 import core.Background;
-import core.Controls;
 import core.KeyAdapterImpl;
 import heroes.*;
 import observer.HPBar;
-import strategy.MeleeAttack;
 import strategy.Projectile;
-import strategy.RangedAttack;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +17,11 @@ public class GamePanel extends JPanel implements Runnable {
     private Thread gameThread;
     private boolean running = true;
     private HPBar hpBar1, hpBar2;
+    private long battleStartTime;
+    private boolean battleStarted = false;
     private List<Projectile> projectiles = new ArrayList<>();
+    private boolean gameOver = false;
+    private boolean dialogShown = false;
 
     public GamePanel() {
         setFocusable(true);
@@ -37,9 +38,8 @@ public class GamePanel extends JPanel implements Runnable {
     private void initHeroes() {
         List<Projectile> sharedProjectiles = projectiles;
 
-        Heroes heroes = new Heroes(sharedProjectiles);
-        hero1 = heroes.ichigo;
-        hero2 = heroes.zangetsu;
+        hero1 = chooseHero("Игрок 1", sharedProjectiles);
+        hero2 = chooseHero("Игрок 2", sharedProjectiles);
 
         int groundTopY = background.getGroundTopY();
         int groundBottomY = background.getGroundBottomY();
@@ -68,6 +68,24 @@ public class GamePanel extends JPanel implements Runnable {
         hero2.addObserver(hpBar2);
     }
 
+    private BaseHero chooseHero(String playerName, List<Projectile> sharedProjectiles) {
+        String[] options = {"Ichigo", "Zangetsu"};
+        int choice = JOptionPane.showOptionDialog(this,
+                playerName + ", выберите героя:",
+                "Выбор героя",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]);
+
+        Heroes heroes = new Heroes(sharedProjectiles);
+        return switch (choice) {
+            case 0 -> heroes.ichigo;
+            case 1 -> heroes.zangetsu;
+            default -> heroes.ichigo;
+        };
+    }
 
     private void initControls() {
         addKeyListener(new KeyAdapterImpl(hero1, hero2));
@@ -80,21 +98,76 @@ public class GamePanel extends JPanel implements Runnable {
 
     @Override
     public void run() {
+        battleStartTime = System.currentTimeMillis();
+
         while (running) {
-            hero1.update();
-            hero2.update();
+            long now = System.currentTimeMillis();
 
-            for (Projectile p : projectiles) {
-                p.update();
+            if (!battleStarted) {
+                hero1.updateIdleAnimation();
+                hero2.updateIdleAnimation();
+
+                if (now - battleStartTime >= 5000) {
+                    battleStarted = true;
+                    hero1.idleTimeOver = true;
+                    hero2.idleTimeOver = true;
+                }
+            } else if (!gameOver) {
+                hero1.update();
+                hero2.update();
+
+                for (Projectile p : projectiles) {
+                    p.update();
+                }
+                projectiles.removeIf(p -> !p.active);
+
+                checkAttacks();
+
+                if ((hero1.getReiatsu() <= 0 || hero2.getReiatsu() <= 0) && !dialogShown) {
+                    gameOver = true;
+                    dialogShown = true;
+                    showGameOverDialog();
+                }
             }
-            projectiles.removeIf(p -> !p.active);
-
-            checkAttacks();
 
             repaint();
 
             try { Thread.sleep(16); } catch (InterruptedException ignored) { }
         }
+    }
+
+    private void showGameOverDialog() {
+        SwingUtilities.invokeLater(() -> {
+            String winner = hero1.getReiatsu() <= 0 ? hero2.getName() + " выиграл!" : hero1.getName() + " выиграл!";
+
+            int result = JOptionPane.showConfirmDialog(this,
+                    winner + "\nНачать новый бой?",
+                    "Игра окончена",
+                    JOptionPane.YES_NO_OPTION);
+
+            if (result == JOptionPane.YES_OPTION) {
+                restartGame();
+            } else {
+                System.exit(0);
+            }
+        });
+    }
+
+    private void restartGame() {
+        battleStarted = false;
+        gameOver = false;
+        dialogShown = false;
+        battleStartTime = System.currentTimeMillis();
+        hero1.getMovement().x = 200;
+        hero2.getMovement().x = 1000;
+        hero1.setReiatsu(100);
+        hero2.setReiatsu(100);
+        hero1.idleTimeOver = false;
+        hero2.idleTimeOver = false;
+        projectiles.clear();
+
+        hero1.reset();
+        hero2.reset();
     }
 
     @Override
@@ -103,27 +176,41 @@ public class GamePanel extends JPanel implements Runnable {
 
         background.drawBackground(g, getWidth());
 
-        BaseHero first, second;
+        BaseHero first = hero1.getMovement().y < hero2.getMovement().y ? hero1 : hero2;
+        BaseHero second = first == hero1 ? hero2 : hero1;
 
-        if (hero1.getMovement().y < hero2.getMovement().y) {
-            first = hero1;
-            second = hero2;
+        if (!battleStarted) {
+            first.updateIdleAnimation();
+            second.updateIdleAnimation();
+            first.draw(g);
+            second.draw(g);
+
+            long remaining = 5 - (System.currentTimeMillis() - battleStartTime) / 1000;
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Arial", Font.BOLD, 60));
+            g.drawString("Бой начнётся через: " + remaining, 400, 300);
         } else {
-            first = hero2;
-            second = hero1;
+            first.draw(g);
+            second.draw(g);
+
+            for (Projectile p : projectiles) {
+                p.draw(g);
+            }
+
+            background.drawForeground(g, getWidth());
+
+            hpBar1.draw(g, hero1);
+            hpBar2.draw(g, hero2);
+
+            if (gameOver) {
+                g.setColor(new Color(255, 0, 0, 128)); // полупрозрачный красный
+                g.fillRect(0, 0, getWidth(), getHeight());
+
+                g.setColor(Color.WHITE);
+                g.setFont(new Font("Arial", Font.BOLD, 80));
+                String winner = hero1.getReiatsu() <= 0 ? hero2.getName() + " выиграл!" : hero1.getName() + " выиграл!";
+                g.drawString(winner, 400, 300);
+            }
         }
-
-        first.draw(g);
-        second.draw(g);
-
-
-        for (Projectile p : projectiles) {
-            p.draw(g);
-        }
-
-        background.drawForeground(g, getWidth());
-
-        hpBar1.draw(g, hero1);
-        hpBar2.draw(g, hero2);
     }
 }

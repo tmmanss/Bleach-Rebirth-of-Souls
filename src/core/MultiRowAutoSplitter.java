@@ -6,14 +6,6 @@ import java.util.List;
 
 public class MultiRowAutoSplitter {
 
-    /**
-     * Разбивает sprite sheet на кадры по рядам и столбцам, автоматически определяя ряды.
-     * Сначала идёт первый ряд слева-направо, потом второй и т.д.
-     *
-     * @param sheet    Исходный спрайт-лист
-     * @param minAlpha Порог прозрачности для определения пустых пикселей
-     * @return массив всех кадров по порядку
-     */
     public static BufferedImage[] split(BufferedImage sheet, int minAlpha) {
         List<BufferedImage> frames = new ArrayList<>();
 
@@ -36,7 +28,6 @@ public class MultiRowAutoSplitter {
         return frames.toArray(new BufferedImage[0]);
     }
 
-    // Находит ряды: возвращает список [yStart, rowHeight]
     private static List<int[]> findRows(BufferedImage sheet, int minAlpha) {
         List<int[]> rows = new ArrayList<>();
 
@@ -73,7 +64,6 @@ public class MultiRowAutoSplitter {
         return rows;
     }
 
-    // Разбивает одну строку на кадры по пустым вертикальным столбцам
     private static List<BufferedImage> splitRow(BufferedImage row, int minAlpha) {
         List<BufferedImage> frames = new ArrayList<>();
 
@@ -114,7 +104,6 @@ public class MultiRowAutoSplitter {
         return frames;
     }
 
-    // Отсекаем пустые пиксели сверху/снизу
     private static BufferedImage trimVertical(BufferedImage frame, int minAlpha) {
         int top = 0;
         int bottom = frame.getHeight() - 1;

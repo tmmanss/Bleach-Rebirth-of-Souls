@@ -11,7 +11,6 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 
 public class BaseHero implements Subject {
     private String name;
@@ -19,6 +18,8 @@ public class BaseHero implements Subject {
     private int reiatsu;
 
     public HeroState state = HeroState.IDLE;
+    private long spawnTime = System.currentTimeMillis();
+    public boolean idleTimeOver = false;
 
     protected HeroAnimation animation;
     protected HeroMovement movement;
@@ -27,10 +28,14 @@ public class BaseHero implements Subject {
     private AttackStrategy rangedStrategy;
     protected boolean projectileFiredThisAttack = false;
 
-
     public boolean movingRight = true;
     public boolean attacking = false;
     protected boolean damageDealt = false;
+
+    private boolean dashing = false;
+    private long dashStartTime;
+    private int dashDuration = 100;
+    private int dashDistance = 200;
 
     protected int currentFrame = 0;
     protected long lastFrameTime = 0;
@@ -125,10 +130,6 @@ public class BaseHero implements Subject {
         return Math.sqrt(dx * dx + dy * dy);
     }
 
-    public void setAttackStrategy(AttackStrategy strategy) {
-        this.attackStrategy = strategy;
-    }
-
     public void performAttack(BaseHero target, AttackStrategy strategy) {
         if (attacking) return;
 
@@ -140,21 +141,6 @@ public class BaseHero implements Subject {
         attackStartTime = System.currentTimeMillis();
     }
 
-
-
-    private void doAttackHit() {
-        if (attackStrategy != null && currentTarget != null && !damageDealt) {
-            double distance = this.distanceTo(currentTarget);
-            if (distance <= this.getAttackRange()) {
-                attackStrategy.attack(this, currentTarget);
-                damageDealt = true;
-                notifyObservers("ATTACK", 0);
-            } else {
-                System.out.println(name + " missed the attack! Distance: " + (int) distance);
-            }
-        }
-    }
-
     public void setTarget(BaseHero target) {
         this.currentTarget = target;
     }
@@ -162,11 +148,6 @@ public class BaseHero implements Subject {
 
     public boolean isAttacking() {
         return attacking;
-    }
-
-    public boolean isAttackFrame() {
-        // можно сделать, чтобы атака происходила только на определённом фрейме удара
-        return state == HeroState.ATTACK && attackFrame == (animation.attackFrames.length / 2);
     }
 
     public void reduceReiatsu(int amount) {
@@ -191,6 +172,33 @@ public class BaseHero implements Subject {
         }
     }
 
+    public void performDash(boolean toRight) {
+        if (dashing) return;
+        dashing = true;
+        dashStartTime = System.currentTimeMillis();
+        state = HeroState.DASH;
+
+        movement.x += toRight ? dashDistance : -dashDistance;
+        if (movement.x < movement.groundLeft) movement.x = movement.groundLeft;
+        if (movement.x > movement.groundRight) movement.x = movement.groundRight - 1;
+    }
+
+    public void updateIdleAnimation() {
+        long now = System.currentTimeMillis();
+        if (now - lastFrameTime < frameDelay) return;
+        lastFrameTime = now;
+
+        if (!idleTimeOver) {
+            BufferedImage[] frames = animation.idleFrames;
+            if (frames != null && frames.length > 0) {
+                currentFrame = (currentFrame + 1) % frames.length;
+            }
+        }
+    }
+
+
+
+
     public void update() {
         long now = System.currentTimeMillis();
         if (now - lastFrameTime < frameDelay) return;
@@ -198,17 +206,27 @@ public class BaseHero implements Subject {
 
         boolean anyKey = up || down || left || right;
 
+        if (!idleTimeOver && now - spawnTime > 5000) {
+            idleTimeOver = true; // первые 5 секунд прошли
+            state = HeroState.STAND;
+            currentFrame = 0;
+        }
+
         switch (state) {
-            case IDLE -> {
-                currentFrame = (currentFrame + 1) % animation.idleFrames.length;
+            case IDLE, STAND -> {
+                BufferedImage[] framesToUse = !idleTimeOver ? animation.idleFrames : animation.standFrames;
+                currentFrame = (currentFrame + 1) % framesToUse.length;
+
                 if (anyKey) state = HeroState.RUN;
             }
+
             case RUN -> {
                 currentFrame = (currentFrame + 1) % animation.runFrames.length;
                 int frameWidth = animation.runFrames[currentFrame].getWidth();
                 movement.move(left, right, up, down, frameWidth);
-                if (!anyKey) state = HeroState.IDLE;
+                if (!anyKey) state = idleTimeOver ? HeroState.STAND : HeroState.IDLE;
             }
+
             case ATTACK -> {
                 if (now - attackStartTime > attackFrameDelay) {
                     attackFrame++;
@@ -216,13 +234,11 @@ public class BaseHero implements Subject {
 
                     if (attackStrategy != null && currentTarget != null) {
                         if (attackStrategy instanceof RangedAttack ranged) {
-                            // создаём снаряд один раз
                             if (!projectileFiredThisAttack && attackFrame >= 7) {
                                 ranged.fireProjectile(this, currentTarget);
                                 projectileFiredThisAttack = true;
                             }
                         } else {
-                            // обычная атака
                             if (!damageDealt) {
                                 attackStrategy.attack(this, currentTarget);
                                 damageDealt = true;
@@ -230,24 +246,30 @@ public class BaseHero implements Subject {
                         }
                     }
 
-                    // завершение атаки
                     BufferedImage[] framesToUse = getCurrentAttackFrames();
                     if (attackFrame >= framesToUse.length) {
                         attackFrame = 0;
                         attacking = false;
                         damageDealt = false;
-                        projectileFiredThisAttack = false; // ⚡ сброс флага
-                        state = HeroState.IDLE;
+                        projectileFiredThisAttack = false;
+                        state = idleTimeOver ? HeroState.STAND : HeroState.IDLE;
                         currentTarget = null;
                     }
                 }
             }
-
+            case DASH -> {
+                if (System.currentTimeMillis() - dashStartTime > dashDuration) {
+                    dashing = false;
+                    state = idleTimeOver ? HeroState.STAND : HeroState.IDLE;
+                    currentFrame = 0;
+                }
+            }
 
         }
 
         movingRight = right || (!left && movingRight);
     }
+
 
 
     public void draw(Graphics g) {
@@ -259,7 +281,25 @@ public class BaseHero implements Subject {
                 BufferedImage[] framesToUse = getCurrentAttackFrames();
                 frame = framesToUse[attackFrame % framesToUse.length];
             }
-            default -> frame = animation.idleFrames[currentFrame % animation.idleFrames.length];
+            case IDLE, STAND -> {
+                BufferedImage[] framesToUse = !idleTimeOver ? animation.idleFrames : animation.standFrames;
+                if (framesToUse == null || framesToUse.length == 0) return;
+                frame = framesToUse[currentFrame % framesToUse.length];
+            }
+            case DASH -> {
+                BufferedImage dashFrame = animation.dashFrame;
+                if (dashFrame != null) {
+                    frame = dashFrame;
+                } else {
+                    frame = animation.standFrames[0];
+                }
+            }
+
+            default -> {
+                if (animation.standFrames != null && animation.standFrames.length > 0) {
+                    frame = animation.standFrames[currentFrame % animation.standFrames.length];
+                } else return;
+            }
         }
 
         if (!movingRight) {
@@ -269,11 +309,14 @@ public class BaseHero implements Subject {
         }
 
         double scale = 2.0;
+        if (state == HeroState.DASH) {
+            scale = 0.7;
+        }
         int scaledWidth = (int)(frame.getWidth() * scale);
         int scaledHeight = (int)(frame.getHeight() * scale);
 
         int drawX = movement.x;
-        int drawY = movement.y - scaledHeight; // смещаем вверх на высоту кадра
+        int drawY = movement.y - scaledHeight;
 
         if (wasHit && System.currentTimeMillis() - lastHitTime < 150) {
             g.setColor(new Color(255, 0, 0, 120));
@@ -285,5 +328,31 @@ public class BaseHero implements Subject {
         g.drawImage(frame, drawX, drawY, scaledWidth, scaledHeight, null);
     }
 
+    public void reset() {
+        up = false;
+        down = false;
+        left = false;
+        right = false;
 
+        attacking = false;
+        damageDealt = false;
+        projectileFiredThisAttack = false;
+        currentTarget = null;
+        attackFrame = 0;
+        attackStartTime = 0;
+
+        dashing = false;
+        dashStartTime = 0;
+
+        currentFrame = 0;
+        lastFrameTime = 0;
+        state = HeroState.IDLE;
+
+        idleTimeOver = false;
+        spawnTime = System.currentTimeMillis();
+        wasHit = false;
+        lastHitTime = 0;
+
+        notifyObservers("RESET", 0);
+    }
 }

@@ -5,6 +5,7 @@ public enum HeroState {
     STAND,
     RUN,
     ATTACK,
+    DASH,
     JUMP,
     HIT
 }

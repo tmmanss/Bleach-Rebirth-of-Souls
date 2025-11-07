@@ -4,19 +4,26 @@ import java.awt.image.BufferedImage;
 
 public class HeroAnimation {
     public BufferedImage[] idleFrames;
-    public BufferedImage[] startRunFrames;
+    public BufferedImage[] standFrames;
     public BufferedImage[] runFrames;
     public BufferedImage[] attackFrames;
     public BufferedImage[] rangedAttackFrames;
+    public BufferedImage dashFrame;
 
 
-    public HeroAnimation(BufferedImage[] idle, BufferedImage[] startRun,
-                         BufferedImage[] run, BufferedImage[] attack, BufferedImage[] rangedAttack) {
+    public HeroAnimation(BufferedImage[] idle,
+                         BufferedImage[] stand,
+                         BufferedImage[] run,
+                         BufferedImage[] attack,
+                         BufferedImage[] rangedAttack,
+                         BufferedImage dash
+    ) {
         this.idleFrames = idle;
-        this.startRunFrames = startRun;
+        this.standFrames = stand;
         this.runFrames = run;
         this.attackFrames = attack;
         this.rangedAttackFrames = rangedAttack;
+        this.dashFrame = dash;
     }
 }
 
