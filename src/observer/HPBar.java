@@ -13,7 +13,7 @@ public class HPBar implements Observer {
     @Override
     public void update(String event, BaseHero hero, int value) {
         if (event.equals("HIT")) {
-            System.out.println(hero.getName() + " HP changed: " + hero.getReiatsu());
+            System.out.println(hero.getName() + " Reiatsu changed: " + hero.getReiatsu());
         }
     }
 
@@ -23,6 +23,6 @@ public class HPBar implements Observer {
         g.fillRect(x, y, (int)(width * ratio), height);
         g.setColor(Color.WHITE);
         g.drawRect(x, y, width, height);
-        g.drawString(hero.getName() + " HP: " + hero.getReiatsu(), x, y - 5);
+        g.drawString(hero.getName() + " Reiatsu: " + hero.getReiatsu(), x, y - 5);
     }
 }
