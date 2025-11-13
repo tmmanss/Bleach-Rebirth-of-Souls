@@ -1,6 +1,9 @@
+package core;
 import core.Background;
 import core.KeyAdapterImpl;
 import heroes.*;
+import heroes.factory.HeroFactory;
+import heroes.factory.HeroFactoryGet;
 import observer.HPBar;
 import strategy.Projectile;
 import java.util.ArrayList;
@@ -23,24 +26,23 @@ public class GamePanel extends JPanel implements Runnable {
     private boolean gameOver = false;
     private boolean dialogShown = false;
 
-    public GamePanel() {
+    public GamePanel(BaseHero hero1, BaseHero hero2,List<Projectile> projectileList) {
         setFocusable(true);
         setPreferredSize(new Dimension(1280, 720));
 
+        this.hero1 = hero1;
+        this.hero2 = hero2;
+        this.projectiles = projectileList;
+
         background = new Background();
-        initHeroes();
         initControls();
+        initHPBars();
 
         gameThread = new Thread(this);
         gameThread.start();
     }
 
-    private void initHeroes() {
-        List<Projectile> sharedProjectiles = projectiles;
-
-        hero1 = chooseHero("Игрок 1", sharedProjectiles);
-        hero2 = chooseHero("Игрок 2", sharedProjectiles);
-
+    public void initPositions() {
         int groundTopY = background.getGroundTopY();
         int groundBottomY = background.getGroundBottomY();
 
@@ -60,14 +62,14 @@ public class GamePanel extends JPanel implements Runnable {
 
         hero1.movingRight = true;
         hero2.movingRight = false;
-
+    }
+    private void initHPBars() {
         hpBar1 = new HPBar(25, 50, 300, 20);
         hpBar2 = new HPBar(950, 50, 300, 20);
 
         hero1.addObserver(hpBar1);
         hero2.addObserver(hpBar2);
     }
-
     private BaseHero chooseHero(String playerName, List<Projectile> sharedProjectiles) {
         String[] options = {"Ichigo", "Zangetsu"};
         int choice = JOptionPane.showOptionDialog(this,
@@ -79,12 +81,11 @@ public class GamePanel extends JPanel implements Runnable {
                 options,
                 options[0]);
 
-        Heroes heroes = new Heroes(sharedProjectiles);
-        return switch (choice) {
-            case 0 -> heroes.ichigo;
-            case 1 -> heroes.zangetsu;
-            default -> heroes.ichigo;
-        };
+        if(choice<0 || choice>=options.length)choice = 0;
+        String name = options[choice];
+        HeroFactory heroFactory= HeroFactoryGet.getFactory(name);
+        return heroFactory.createHero(sharedProjectiles);
+
     }
 
     private void initControls() {
