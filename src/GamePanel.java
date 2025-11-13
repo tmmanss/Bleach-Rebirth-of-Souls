@@ -1,9 +1,6 @@
 package core;
-import core.Background;
-import core.KeyAdapterImpl;
 import heroes.*;
 import heroes.factory.HeroFactory;
-import heroes.factory.HeroFactoryGet;
 import observer.HPBar;
 import strategy.Projectile;
 import java.util.ArrayList;
@@ -83,8 +80,7 @@ public class GamePanel extends JPanel implements Runnable {
 
         if(choice<0 || choice>=options.length)choice = 0;
         String name = options[choice];
-        HeroFactory heroFactory= HeroFactoryGet.getFactory(name);
-        return heroFactory.createHero(sharedProjectiles);
+        return HeroFactory.createHero(name,sharedProjectiles);
 
     }
 
