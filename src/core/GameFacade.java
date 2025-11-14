@@ -1,10 +1,8 @@
 package core;
-import core.GamePanel;
 import heroes.BaseHero;
 import heroes.factory.HeroFactory;
-import heroes.factory.HeroFactoryGet;
 import strategy.Projectile;
-
+import core.GamePanel;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,8 +13,8 @@ public class GameFacade {
 
     public GameFacade(String hero1Name, String hero2Name){
         projectileList = new ArrayList<>();
-        hero1= HeroFactoryGet.getFactory(hero1Name).createHero(projectileList);
-        hero2= HeroFactoryGet.getFactory(hero2Name).createHero(projectileList);
+        hero1= HeroFactory.createHero(hero1Name,projectileList);
+        hero2= HeroFactory.createHero(hero2Name,projectileList);
     }
     public BaseHero getHero1(){
         return hero1;
