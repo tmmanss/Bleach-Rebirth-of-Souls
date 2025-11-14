@@ -1,6 +1,4 @@
 package core;
-import core.Background;
-import core.KeyAdapterImpl;
 import heroes.*;
 import heroes.factory.HeroFactory;
 import heroes.factory.HeroFactoryGet;
