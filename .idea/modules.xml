@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Bleach.iml" filepath="$PROJECT_DIR$/Bleach.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Bleach.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Bleach.main.iml" />
     </modules>
   </component>
 </project>
