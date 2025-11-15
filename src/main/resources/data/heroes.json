@@ -1,0 +1,12 @@
+{
+  "Ichigo Kurosaki": {
+    "reiatsu": 1000,
+    "attackRange": 80,
+    "basePath": "assets/frames/ichigo"
+  },
+  "Zangetsu": {
+    "reiatsu": 1000,
+    "attackRange": 80,
+    "basePath": "assets/frames/zangetsu"
+  }
+}

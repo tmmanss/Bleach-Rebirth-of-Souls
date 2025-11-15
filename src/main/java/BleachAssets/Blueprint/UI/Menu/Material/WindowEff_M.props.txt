@@ -1,0 +1,84 @@
+TwoSided = false
+bDisableDepthTest = false
+bIsMasked = false
+ReferencedTextures[1] =
+{
+    ReferencedTextures[0] = Texture2D'Blueprint/UI/Menu/Material/Window02.Window02'
+}
+Expressions[45] =
+{
+    Expressions[0] = MaterialExpressionStaticSwitchParameter'Blueprint/UI/Menu/Material/WindowEff_M.MaterialExpressionStaticSwitchParameter_0'
+    Expressions[2] = MaterialExpressionTextureSample'Blueprint/UI/Menu/Material/WindowEff_M.MaterialExpressionTextureSample_0'
+    Expressions[19] = MaterialExpressionScalarParameter'Blueprint/UI/Menu/Material/WindowEff_M.MaterialExpressionScalarParameter_2'
+    Expressions[20] = MaterialExpressionTextureSampleParameter2D'Blueprint/UI/Menu/Material/WindowEff_M.MaterialExpressionTextureSampleParameter2D_0'
+    Expressions[21] = MaterialExpressionVectorParameter'Blueprint/UI/Menu/Material/WindowEff_M.MaterialExpressionVectorParameter_0'
+    Expressions[23] = MaterialExpressionScalarParameter'Blueprint/UI/Menu/Material/WindowEff_M.MaterialExpressionScalarParameter_4'
+    Expressions[24] = MaterialExpressionVectorParameter'Blueprint/UI/Menu/Material/WindowEff_M.MaterialExpressionVectorParameter_2'
+    Expressions[25] = MaterialExpressionScalarParameter'Blueprint/UI/Menu/Material/WindowEff_M.MaterialExpressionScalarParameter_5'
+    Expressions[28] = MaterialExpressionScalarParameter'Blueprint/UI/Menu/Material/WindowEff_M.MaterialExpressionScalarParameter_6'
+    Expressions[38] = MaterialExpressionScalarParameter'Blueprint/UI/Menu/Material/WindowEff_M.MaterialExpressionScalarParameter_12'
+    Expressions[40] = MaterialExpressionScalarParameter'Blueprint/UI/Menu/Material/WindowEff_M.MaterialExpressionScalarParameter_13'
+    Expressions[44] = MaterialExpressionScalarParameter'Blueprint/UI/Menu/Material/WindowEff_M.MaterialExpressionScalarParameter_15'
+}
+CachedExpressionData =
+{
+    Parameters =
+    {
+        Entries[5] =
+        {
+            Entries[0] = { ParameterInfos[0]={} }
+            Entries[1] = { ParameterInfos[0]={} }
+            Entries[2] = { ParameterInfos[0]={} }
+            Entries[3] = { ParameterInfos[0]={} }
+            Entries[4] = { ParameterInfos[0]={} }
+        }
+        ScalarValues[0] = {}
+        VectorValues[0] = {}
+        TextureValues[0] = {}
+    }
+    ReferencedTextures[0] = {}
+}
+BlendMode = BLEND_Translucent (2)
+OpacityMaskClipValue = 0.333
+CollectedTextureParameters[1] =
+{
+    CollectedTextureParameters[0] =
+    {
+        Texture = Texture2D'Blueprint/UI/Menu/Material/Window01.Window01'
+        Name = VertexTexture
+        Group = None
+    }
+}
+CollectedScalarParameters[7] =
+{
+    CollectedScalarParameters[0] = { Value=1, Name=Size, Group=None }
+    CollectedScalarParameters[1] = { Value=0.8, Name=MinIntensity, Group=None }
+    CollectedScalarParameters[2] = { Value=0.8, Name=MinIntensity, Group=None }
+    CollectedScalarParameters[3] = { Value=0.5, Name=OutlineWidth, Group=None }
+    CollectedScalarParameters[4] = { Value=0, Name=Speed, Group=None }
+    CollectedScalarParameters[5] = { Value=0, Name=AdditionalTimeForAnim, Group=None }
+    CollectedScalarParameters[6] = { Value=0, Name=Speed, Group=None }
+}
+CollectedVectorParameters[2] =
+{
+    CollectedVectorParameters[0] =
+    {
+        Value = { R=1, G=1, B=1, A=1 }
+        Name = Color
+        Group = None
+    }
+    CollectedVectorParameters[1] =
+    {
+        Value = { R=0.527538, G=0, B=1, A=1 }
+        Name = OutlineColor
+        Group = None
+    }
+}
+FlattenedTexture = None
+MobileBaseTexture = None
+MobileNormalTexture = None
+bUseMobileSpecular = false
+MobileSpecularPower = 16
+MobileSpecularMask = MSM_Constant (0)
+MobileMaskTexture = None
+TextureStreamingData[0] = {}

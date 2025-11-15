@@ -1,0 +1,53 @@
+TwoSided = false
+bDisableDepthTest = false
+bIsMasked = false
+ReferencedTextures[1] = { Texture2D'Texture/Stage/Builds/Build.Build' }
+Expressions[8] =
+{
+    Expressions[0] = MaterialExpressionTextureSampleParameter2D'Materials/Builds/Build_Mat.MaterialExpressionTextureSampleParameter2D_0'
+    Expressions[3] = MaterialExpressionScalarParameter'Materials/Builds/Build_Mat.MaterialExpressionScalarParameter_0'
+    Expressions[4] = MaterialExpressionScalarParameter'Materials/Builds/Build_Mat.MaterialExpressionScalarParameter_1'
+}
+CachedExpressionData =
+{
+    Parameters =
+    {
+        Entries[5] =
+        {
+            Entries[0] = { ParameterInfos[0]={} }
+            Entries[1] = { ParameterInfos[0]={} }
+            Entries[2] = { ParameterInfos[0]={} }
+            Entries[3] = { ParameterInfos[0]={} }
+            Entries[4] = { ParameterInfos[0]={} }
+        }
+        ScalarValues[0] = {}
+        VectorValues[0] = {}
+        TextureValues[0] = {}
+    }
+    ReferencedTextures[0] = {}
+}
+BlendMode = BLEND_Masked (1)
+OpacityMaskClipValue = 0.333
+CollectedTextureParameters[1] =
+{
+    CollectedTextureParameters[0] =
+    {
+        Texture = Texture2D'Texture/Stage/Builds/Build.Build'
+        Name = Param
+        Group = None
+    }
+}
+CollectedScalarParameters[2] =
+{
+    CollectedScalarParameters[0] = { Value=0, Name=R, Group=None }
+    CollectedScalarParameters[1] = { Value=0, Name=B, Group=None }
+}
+CollectedVectorParameters[0] = {}
+FlattenedTexture = None
+MobileBaseTexture = None
+MobileNormalTexture = None
+bUseMobileSpecular = false
+MobileSpecularPower = 16
+MobileSpecularMask = MSM_Constant (0)
+MobileMaskTexture = None
+TextureStreamingData[0] = {}
