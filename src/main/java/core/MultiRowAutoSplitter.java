@@ -10,18 +10,14 @@ public class MultiRowAutoSplitter {
         List<BufferedImage> frames = new ArrayList<>();
 
         List<int[]> rows = findRows(sheet, minAlpha);
-        System.out.println("Найдено рядов: " + rows.size());
 
         for (int i = 0; i < rows.size(); i++) {
             int[] row = rows.get(i);
             int yStart = row[0];
             int rowHeight = row[1];
-            System.out.println("Ряд " + i + ": y=" + yStart + ", высота=" + rowHeight);
 
             BufferedImage rowImage = sheet.getSubimage(0, yStart, sheet.getWidth(), rowHeight);
             List<BufferedImage> rowFrames = splitRow(rowImage, minAlpha);
-            System.out.println("В ряду " + i + " найдено спрайтов: " + rowFrames.size());
-
             frames.addAll(rowFrames);
         }
 

@@ -22,9 +22,10 @@ public class MeleeAttack implements AttackStrategy {
         attacker.reduceReiatsu(cost);
 
         if (attacker.distanceTo(target) <= range) {
-            target.takeDamage(damage);
+            target.takeDamage(getDamage());
         }
     }
+
 
     @Override
     public BufferedImage[] getAttackFrames() { return frames; }

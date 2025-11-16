@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameFacade {
-
     private BaseHero hero1;
     private BaseHero hero2;
     private List<Projectile> projectileList;

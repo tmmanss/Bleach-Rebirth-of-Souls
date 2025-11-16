@@ -5,17 +5,17 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 
 public class RangedAttack implements AttackStrategy {
-    private BufferedImage[] frames;
-    private List<Projectile> projectileList;
+    protected BufferedImage[] frames;
+    protected List<Projectile> projectileList;
 
-    private BufferedImage projectileSprite;
-    private double projectileSpeed;
-    private double range;
-    private int damage;
-    private int cost;
-    private int fireFrame;
+    protected BufferedImage projectileSprite;
+    protected double projectileSpeed;
+    protected double range;
+    protected int damage;
+    protected int cost;
+    protected int fireFrame;
 
-    private boolean fired = false;
+    protected boolean fired = false;
 
     public RangedAttack(
             BufferedImage[] frames,
@@ -42,7 +42,6 @@ public class RangedAttack implements AttackStrategy {
 
         int frame = attacker.getAttackFrame();
         
-        // Debug output for zangetsu projectile issue
         if (frame == fireFrame) {
             System.out.println("RangedAttack: frame=" + frame + ", fireFrame=" + fireFrame + ", fired=" + fired + 
                              ", frames.length=" + frames.length + ", attacker=" + attacker.getName());
@@ -59,6 +58,7 @@ public class RangedAttack implements AttackStrategy {
         }
     }
 
+
     @Override public BufferedImage[] getAttackFrames() { return frames; }
     @Override public double getRange() { return range; }
     @Override public int getDamage() { return damage; }
@@ -70,18 +70,16 @@ public class RangedAttack implements AttackStrategy {
             return;
         }
         
-        System.out.println("Firing projectile: sprite size=" + projectileSprite.getWidth() + "x" + projectileSprite.getHeight() + 
-                         ", damage=" + damage + ", speed=" + projectileSpeed);
-        
+        int projectileDamage = getDamage();
+
         Projectile p = new Projectile(
                 attacker.getX(),
                 attacker.getY(),
                 target,
-                damage,
+                projectileDamage,
                 projectileSprite,
                 attacker.isMovingRight()
         );
-        // Set the projectile speed if needed
         p.speed = projectileSpeed;
         projectileList.add(p);
         System.out.println("Projectile added to list. List size: " + projectileList.size());
