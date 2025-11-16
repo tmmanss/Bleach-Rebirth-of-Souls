@@ -49,7 +49,7 @@ public class Projectile {
             return;
         }
 
-        x += (movingRight ? 1 : -1) * speed * Math.abs(dx/dist);
+        x += dx / dist * speed;
         y += dy / dist * speed;
     }
 

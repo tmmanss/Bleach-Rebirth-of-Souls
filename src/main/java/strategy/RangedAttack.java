@@ -20,11 +20,21 @@ public class RangedAttack implements AttackStrategy {
     @Override
     public void attack(BaseHero attacker, BaseHero target) {
         attacker.reduceReiatsu(15);
+
         int attackFrame = attacker.getAttackFrame();
+
+        // момент выстрела (выбери свой номер кадра!)
+        if (attackFrame == 7 && !projectileFired) {
+            fireProjectile(attacker, target);
+            projectileFired = true;
+        }
+
         if (attackFrame == attacker.getAnimation().rangedAttackFrames.length - 1) {
             projectileFired = false;
         }
     }
+
+
 
     public void fireProjectile(BaseHero attacker, BaseHero target) {
         Projectile p = new Projectile(
