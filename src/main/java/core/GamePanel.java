@@ -157,8 +157,8 @@ public class GamePanel extends JPanel implements Runnable {
         battleStartTime = System.currentTimeMillis();
         hero1.getMovement().x = 200;
         hero2.getMovement().x = 1000;
-        hero1.setReiatsu(100);
-        hero2.setReiatsu(100);
+        hero1.setReiatsu(1000);
+        hero2.setReiatsu(1000);
         hero1.idleTimeOver = false;
         hero2.idleTimeOver = false;
         projectiles.clear();
