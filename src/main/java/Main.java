@@ -19,9 +19,13 @@ public class Main {
 
         System.out.println("Heroes selected: " + hero1Name + " vs " + hero2Name);
 
+        // Create shared projectile list for both heroes
+        java.util.List<strategy.Projectile> sharedProjectiles = new ArrayList<>();
+
         GameFacade game = new GameFacade(
-                HeroFactory.createHero(hero1Name, new ArrayList<>()),
-                HeroFactory.createHero(hero2Name, new ArrayList<>())
+                HeroFactory.createHero(hero1Name, sharedProjectiles),
+                HeroFactory.createHero(hero2Name, sharedProjectiles),
+                sharedProjectiles
         );
 
         GamePanel panel = game.createGamePanel();

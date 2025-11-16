@@ -11,6 +11,9 @@ public class Controls {
     public static final int P1_RIGHT = KeyEvent.VK_D;
     public static final int P1_ATTACK = KeyEvent.VK_F;
     public static final int P1_RANGED_ATTACK = KeyEvent.VK_SPACE;
+    public static final int P1_J = KeyEvent.VK_J;
+    public static final int P1_K = KeyEvent.VK_K;
+    public static final int P1_L = KeyEvent.VK_L;
 
 
 
@@ -21,5 +24,8 @@ public class Controls {
     public static final int P2_RIGHT = KeyEvent.VK_RIGHT;
     public static final int P2_ATTACK = KeyEvent.VK_SHIFT;
     public static final int P2_RANGED_ATTACK = KeyEvent.VK_ENTER;
+    public static final int P2_J = KeyEvent.VK_NUMPAD1;  // Changed from VK_J to avoid conflict
+    public static final int P2_K = KeyEvent.VK_NUMPAD2;  // Changed from VK_K to avoid conflict
+    public static final int P2_L = KeyEvent.VK_NUMPAD3;  // Changed from VK_L to avoid conflict
 
 }
