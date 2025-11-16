@@ -19,7 +19,6 @@ public class KeyAdapterImpl extends KeyAdapter {
 
     private final int doubleTapThreshold = 250;
 
-    // Combo trackers for Player 1
     private ComboKeyTracker p1J = new ComboKeyTracker();
     private ComboKeyTracker p1K = new ComboKeyTracker();
     private ComboKeyTracker p1L = new ComboKeyTracker();

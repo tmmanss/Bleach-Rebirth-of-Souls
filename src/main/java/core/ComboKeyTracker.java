@@ -9,10 +9,8 @@ public class ComboKeyTracker {
         long now = System.currentTimeMillis();
         
         if (now - lastPressTime > comboTimeout) {
-            // Timeout exceeded, reset combo count
             pressCount = 1;
         } else {
-            // Within timeout, increment combo count
             pressCount++;
         }
         
@@ -20,4 +18,5 @@ public class ComboKeyTracker {
         return pressCount;
     }
 }
+
 

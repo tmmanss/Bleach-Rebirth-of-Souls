@@ -1,0 +1,297 @@
+@startuml Class_Diagram
+!theme plain
+
+' Factory Pattern
+package factory {
+    class HeroFactory {
+        -cachedAttacksMap: Map<String, AttackStrategy>
+        +createHero(name: String, projectiles: List<Projectile>): BaseHero
+        +getAllHeroNames(): Set<String>
+    }
+    
+    class AttackLoader {
+        +loadAttacks(projectiles: List<Projectile>): Map<String, AttackStrategy>
+    }
+    
+    class HeroLoader {
+        +loadHero(name: String, attacks: Map, projectiles: List): BaseHero
+        +getAllHeroNames(): Set<String>
+    }
+    
+    HeroFactory --> AttackLoader
+    HeroFactory --> HeroLoader
+}
+
+' Strategy Pattern
+package strategy {
+    interface AttackStrategy {
+        +attack(attacker: BaseHero, target: BaseHero): void
+        +getAttackFrames(): BufferedImage[]
+        +getRange(): double
+        +getDamage(): int
+        +getCost(): int
+    }
+    
+    class MeleeAttack implements AttackStrategy {
+        -frames: BufferedImage[]
+        -range: double
+        -damage: int
+        -cost: int
+    }
+    
+    class RangedAttack implements AttackStrategy {
+        -frames: BufferedImage[]
+        -projectileList: List<Projectile>
+        -projectileSprite: BufferedImage
+        -projectileSpeed: double
+        -fireFrame: int
+    }
+    
+    class CeroAttack implements AttackStrategy
+    class KidoAttack implements AttackStrategy
+}
+
+' Decorator Pattern
+package heroes {
+    class BaseHero {
+        -name: String
+        -reiatsu: int
+        -attackRange: double
+        -observers: List<Observer>
+        +performAttack(target: BaseHero, strategy: AttackStrategy): void
+        +takeDamage(amount: int): void
+        +addObserver(observer: Observer): void
+        +notifyObservers(event: String, value: int): void
+        +getReiatsu(): int
+        +getMeleeAttacks(): List<AttackStrategy>
+        +getRangedAttacks(): List<AttackStrategy>
+    }
+    
+    abstract class HeroDecorator extends BaseHero {
+        #wrappedHero: BaseHero
+    }
+    
+    class ExtraReiatsuDecorator extends HeroDecorator {
+        -EXTRA_REIATSU: int = 50
+    }
+    
+    class ExtraDamageDecorator extends HeroDecorator {
+        -boostedMelee: List<AttackStrategy>
+        -boostedRanged: List<AttackStrategy>
+    }
+    
+    HeroDecorator *-- BaseHero : wraps
+}
+
+' Facade Pattern
+package core {
+    class GameFacade {
+        -hero1: BaseHero
+        -hero2: BaseHero
+        -projectileList: List<Projectile>
+        +createGamePanel(): GamePanel
+    }
+    
+    class GamePanel {
+        -hero1: BaseHero
+        -hero2: BaseHero
+        -projectileList: List<Projectile>
+        +initPositions(): void
+    }
+    
+    GameFacade --> GamePanel
+}
+
+' Observer Pattern
+package observer {
+    interface Subject {
+        +addObserver(observer: Observer): void
+        +removeObserver(observer: Observer): void
+        +notifyObservers(event: String, value: int): void
+    }
+    
+    interface Observer {
+        +update(event: String, hero: BaseHero, value: int): void
+    }
+    
+    class HPBar implements Observer {
+        -x: int
+        -y: int
+        -width: int
+        -height: int
+        +draw(g: Graphics, hero: BaseHero): void
+    }
+}
+
+' State Pattern
+package states {
+    interface HeroState {
+        +modifyDamage(baseDamage: int): double
+        +modifyReiatsuCost(baseCost: int): double
+        +getName(): String
+    }
+    
+    class NormalState implements HeroState
+    class ShikaiState implements HeroState
+    class BankaiState implements HeroState
+    class ReleaseState implements HeroState
+}
+
+' Builder Pattern
+package heroes {
+    class HeroBuilder {
+        -name: String
+        -attackRange: double
+        -reiatsu: int
+        -basePath: String
+        -meleeAttacks: List<AttackStrategy>
+        -rangedAttacks: List<AttackStrategy>
+        +setName(name: String): HeroBuilder
+        +setReiatsu(reiatsu: int): HeroBuilder
+        +setAttackRange(range: double): HeroBuilder
+        +setBasePath(path: String): HeroBuilder
+        +setMeleeAttacks(attacks: List<AttackStrategy>): HeroBuilder
+        +setRangedAttacks(attacks: List<AttackStrategy>): HeroBuilder
+        +build(): BaseHero
+    }
+    
+    HeroBuilder ..> BaseHero : creates
+}
+
+' Relationships between patterns
+BaseHero ..|> Subject
+BaseHero *-- AttackStrategy
+HeroLoader --> HeroBuilder
+HeroBuilder --> BaseHero
+GameFacade --> BaseHero
+HPBar ..|> Observer
+
+@enduml
+
+@startuml Sequence_Diagram
+!theme plain
+
+actor Player
+participant Main
+participant "HeroSelectionScreen" as Screen
+participant "HeroFactory" as Factory
+participant "HeroLoader" as Loader
+participant "AttackLoader" as AttackLoad
+participant "HeroBuilder" as Builder
+participant "ExtraDamageDecorator" as Decorator
+participant "BaseHero" as Hero
+participant "GameFacade" as Facade
+participant "GamePanel" as Panel
+participant "HPBar" as Observer
+
+Player -> Main: Start Game
+activate Main
+
+Main -> Screen: show()
+activate Screen
+Screen -> Screen: Display heroes from JSON
+Player -> Screen: Select Heroes & Advantages
+deactivate Screen
+
+Screen --> Main: Return selections (hero1Name, hero2Name, advantages)
+activate Screen
+
+Main -> Factory: createHero(hero1Name, projectiles)
+activate Factory
+
+Factory -> AttackLoad: loadAttacks(projectiles)
+activate AttackLoad
+AttackLoad -> AttackLoad: Load attacks.json
+AttackLoad -> AttackLoad: Create MeleeAttack & RangedAttack instances
+AttackLoad --> Factory: return attacksMap
+deactivate AttackLoad
+
+Factory -> Loader: loadHero(name, attacksMap, projectiles)
+activate Loader
+Loader -> Loader: Load heroes.json
+Loader -> Loader: Find hero data by name
+
+Loader -> Builder: new HeroBuilder()
+activate Builder
+
+Loader -> Builder: setName(name)
+Loader -> Builder: setReiatsu(reiatsu)
+Loader -> Builder: setAttackRange(range)
+Loader -> Builder: setBasePath(basePath)
+Loader -> Builder: setMeleeAttacks(meleeAttacks)
+Loader -> Builder: setRangedAttacks(rangedAttacks)
+
+Loader -> Builder: build()
+Builder -> Builder: Load sprite frames (idle, stand, run, dash)
+Builder -> Builder: Split frames using FrameSplitter
+Builder -> Builder: Create HeroAnimation
+Builder -> Hero: new BaseHero(animation, movement)
+activate Hero
+Builder -> Hero: setName(name)
+Builder -> Hero: setReiatsu(reiatsu)
+Builder -> Hero: setAttackRange(range)
+Builder -> Hero: setMeleeAttacks(meleeAttacks)
+Builder -> Hero: setRangedAttacks(rangedAttacks)
+Builder --> Loader: return hero
+deactivate Builder
+deactivate Hero
+
+Loader --> Factory: return hero
+deactivate Loader
+
+Factory --> Main: return hero
+deactivate Factory
+
+Main -> Decorator: new ExtraDamageDecorator(hero1)
+activate Decorator
+Decorator -> Decorator: Wrap hero attacks with DamageBoostAttackDecorator
+Decorator --> Main: return decorated hero
+deactivate Decorator
+
+Main -> Main: Create hero2 (similar process)
+
+Main -> Facade: new GameFacade(hero1, hero2, projectiles)
+activate Facade
+
+Main -> Facade: createGamePanel()
+Facade -> Panel: new GamePanel(hero1, hero2, projectiles)
+activate Panel
+Facade -> Panel: initPositions()
+Facade --> Main: return panel
+deactivate Panel
+deactivate Facade
+
+Main -> Main: Add panel to JFrame
+Main --> Player: Display game window
+deactivate Main
+
+' Observer Pattern - During Gameplay
+Panel -> Hero: addObserver(HPBar)
+activate Observer
+
+Player -> Hero: performAttack(target, strategy)
+activate Hero
+Hero -> Hero: Set attacking = true
+Hero -> Hero: Set attackStrategy = strategy
+
+Hero -> Hero: update() [each frame]
+Hero -> "AttackStrategy" as Strategy: attack(attacker, target)
+activate Strategy
+Strategy -> Hero: distanceTo(target)
+Strategy -> Hero: reduceReiatsu(cost)
+Strategy -> Hero: takeDamage(amount)
+activate Hero
+Hero -> Hero: reiatsu -= amount
+Hero -> Hero: notifyObservers("HIT", amount)
+Hero -> Observer: update("HIT", hero, amount)
+activate Observer
+Observer -> Observer: Update HP bar display
+deactivate Observer
+deactivate Hero
+deactivate Strategy
+
+deactivate Hero
+
+@enduml
+
+

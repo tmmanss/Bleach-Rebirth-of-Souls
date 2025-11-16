@@ -51,7 +51,6 @@ public class HeroBuilder {
         return this;
     }
 
-    // Keep these for backward compatibility if needed
     public HeroBuilder addAttack(AttackStrategy strategy) {
         if (strategy != null) {
             if (strategy instanceof strategy.RangedAttack) {
@@ -99,7 +98,6 @@ public class HeroBuilder {
             hero.setReiatsu(reiatsu);
             hero.setAttackRange(attackRange);
 
-            // Set attacks from JSON loader
             hero.setMeleeAttacks(meleeAttacks);
             hero.setRangedAttacks(rangedAttacks);
 
