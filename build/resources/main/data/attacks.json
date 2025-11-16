@@ -1,0 +1,41 @@
+[
+  {
+    "id": "ichigo_slash_1",
+    "type": "melee",
+    "damage": 12,
+    "reiatsuCost": 3,
+    "range": 80,
+    "framesPath": "assets/frames/ichigo/slash1.png"
+  },
+  {
+    "id": "ichigo_ranged_1",
+    "type": "ranged",
+    "damage": 10,
+    "reiatsuCost": 7,
+    "range": 200,
+    "projectileSprite": "assets/frames/ichigo/getsuga.png",
+    "projectileSpeed": 5.0,
+    "fireFrame": 7,
+    "framesPath": "assets/frames/ichigo/ranged1.png"
+  },
+  {
+    "id": "zangetsu_slash_1",
+    "type": "melee",
+    "damage": 15,
+    "reiatsuCost": 4,
+    "range": 85,
+    "framesPath": "assets/frames/zangetsu/slash1.png"
+  },
+  {
+    "id": "zangetsu_ranged_1",
+    "type": "ranged",
+    "damage": 12,
+    "reiatsuCost": 8,
+    "range": 220,
+    "projectileSprite": "assets/frames/zangetsu/getsuga.png",
+    "projectileSpeed": 5.5,
+    "fireFrame": 8,
+    "framesPath": "assets/frames/zangetsu/ranged1.png"
+  }
+]
+

@@ -10,11 +10,12 @@ public class GameFacade {
 
     private BaseHero hero1;
     private BaseHero hero2;
-    private List<Projectile> projectileList = new ArrayList<>();
+    private List<Projectile> projectileList;
 
-    public GameFacade(BaseHero hero1, BaseHero hero2) {
+    public GameFacade(BaseHero hero1, BaseHero hero2, List<Projectile> sharedProjectiles) {
         this.hero1 = hero1;
         this.hero2 = hero2;
+        this.projectileList = sharedProjectiles;
     }
 
     public GamePanel createGamePanel() {

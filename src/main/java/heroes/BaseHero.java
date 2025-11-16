@@ -24,9 +24,9 @@ public class BaseHero implements Subject {
     protected HeroAnimation animation;
     protected HeroMovement movement;
     public AttackStrategy attackStrategy;
-    private AttackStrategy meleeStrategy;
-    private AttackStrategy rangedStrategy;
     protected boolean projectileFiredThisAttack = false;
+    private List<AttackStrategy> meleeAttacks = new ArrayList<>();
+    private List<AttackStrategy> rangedAttacks = new ArrayList<>();
 
     public boolean movingRight = true;
     public boolean attacking = false;
@@ -77,10 +77,43 @@ public class BaseHero implements Subject {
         }
     }
 
-    public void setMeleeStrategy(AttackStrategy s) { meleeStrategy = s; }
-    public void setRangedStrategy(AttackStrategy s) { rangedStrategy = s; }
-    public AttackStrategy getMeleeStrategy() { return meleeStrategy; }
-    public AttackStrategy getRangedStrategy() { return rangedStrategy; }
+    public void addMeleeAttack(AttackStrategy attack) {
+        meleeAttacks.add(attack);
+    }
+
+    public void addRangedAttack(AttackStrategy attack) {
+        rangedAttacks.add(attack);
+    }
+
+    public void setMeleeAttacks(List<AttackStrategy> list) {
+        if (list != null) {
+            this.meleeAttacks = new ArrayList<>(list);
+        } else {
+            this.meleeAttacks = new ArrayList<>();
+        }
+    }
+
+    public void setRangedAttacks(List<AttackStrategy> list) {
+        if (list != null) {
+            this.rangedAttacks = new ArrayList<>(list);
+        } else {
+            this.rangedAttacks = new ArrayList<>();
+        }
+    }
+
+    public List<AttackStrategy> getMeleeAttacks() {
+        return meleeAttacks;
+    }
+
+    public List<AttackStrategy> getRangedAttacks() {
+        return rangedAttacks;
+    }
+
+    public AttackStrategy getComboAttack(int comboCount, List<AttackStrategy> list) {
+        if (list == null || list.isEmpty()) return null;
+        if (comboCount > list.size()) return list.get(list.size() - 1);
+        return list.get(comboCount - 1);
+    }
 
     public void setName(String name) {
         this.name = name;
@@ -131,8 +164,14 @@ public class BaseHero implements Subject {
     }
 
     public void performAttack(BaseHero target, AttackStrategy strategy) {
+        if (strategy == null) return;
         if (attacking) return;
 
+        // Clear any previous attack state to prevent frame mixing
+        this.attackStrategy = null;
+        this.damageDealt = false;
+        this.projectileFiredThisAttack = false;
+        
         this.currentTarget = target;
         this.attackStrategy = strategy;
         attacking = true;
@@ -165,11 +204,11 @@ public class BaseHero implements Subject {
     }
 
     private BufferedImage[] getCurrentAttackFrames() {
-        if (attackStrategy != null) {
+        if (attackStrategy != null && attacking) {
             return attackStrategy.getAttackFrames();
-        } else {
-            return meleeStrategy != null ? meleeStrategy.getAttackFrames() : animation.attackFrames;
         }
+        // Fallback: return empty array if no attack strategy or not attacking
+        return new BufferedImage[0];
     }
 
     public void performDash(boolean toRight) {
@@ -233,16 +272,15 @@ public class BaseHero implements Subject {
                     attackStartTime = now;
 
                     if (attackStrategy != null && currentTarget != null) {
-                        if (attackStrategy instanceof RangedAttack ranged) {
-                            if (!projectileFiredThisAttack && attackFrame >= 7) {
-                                ranged.fireProjectile(this, currentTarget);
-                                projectileFiredThisAttack = true;
-                            }
-                        } else {
+                        // For melee attacks, only deal damage once (on first frame)
+                        if (attackStrategy instanceof strategy.MeleeAttack) {
                             if (!damageDealt) {
                                 attackStrategy.attack(this, currentTarget);
                                 damageDealt = true;
                             }
+                        } else {
+                            // For ranged attacks, let the strategy handle its own timing (fireFrame)
+                            attackStrategy.attack(this, currentTarget);
                         }
                     }
 
@@ -252,6 +290,8 @@ public class BaseHero implements Subject {
                         attacking = false;
                         damageDealt = false;
                         projectileFiredThisAttack = false;
+                        // Clear attack strategy to prevent frame mixing
+                        attackStrategy = null;
                         state = idleTimeOver ? HeroState.STAND : HeroState.IDLE;
                         currentTarget = null;
                     }
@@ -279,7 +319,16 @@ public class BaseHero implements Subject {
             case RUN -> frame = animation.runFrames[currentFrame % animation.runFrames.length];
             case ATTACK -> {
                 BufferedImage[] framesToUse = getCurrentAttackFrames();
-                frame = framesToUse[attackFrame % framesToUse.length];
+                if (framesToUse == null || framesToUse.length == 0) {
+                    // Fallback to stand frame if attack frames are not available
+                    if (animation.standFrames != null && animation.standFrames.length > 0) {
+                        frame = animation.standFrames[0];
+                    } else {
+                        return; // Can't draw anything
+                    }
+                } else {
+                    frame = framesToUse[attackFrame % framesToUse.length];
+                }
             }
             case IDLE, STAND -> {
                 BufferedImage[] framesToUse = !idleTimeOver ? animation.idleFrames : animation.standFrames;

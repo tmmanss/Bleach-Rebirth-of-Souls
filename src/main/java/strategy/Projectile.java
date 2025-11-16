@@ -18,7 +18,9 @@ public class Projectile {
     private double scale = 0.4;
 
     public Projectile(double x, double y, BaseHero target, int damage, BufferedImage sprite, boolean movingRight) {
-        this.x = x;
+        // Offset projectile forward from hero position to avoid overlap with attack frames
+        double offsetX = movingRight ? 80 : -80;  // Offset forward in direction hero is facing
+        this.x = x + offsetX;
         this.y = y;
         this.target = target;
         this.targetX = target.getX();
